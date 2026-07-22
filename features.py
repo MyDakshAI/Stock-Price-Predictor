@@ -12,10 +12,18 @@ import ta  # technical analysis indicators library
 
 
 def load_price_data(csv_path: str) -> pd.DataFrame:
-    df = pd.read_csv(csv_path, index_col=0, parse_dates=True)
-    # yfinance sometimes writes a duplicate header row when saved/reloaded; guard against it
+    df = pd.read_csv(csv_path, index_col=0)
+
+    # Force the index to real dates and drop any row where that fails
+    # (older/newer yfinance versions sometimes leave stray header-like
+    # rows in the CSV, e.g. a second row naming the ticker).
+    df.index = pd.to_datetime(df.index, errors="coerce")
+    df = df[df.index.notna()]
+
+    # Drop any remaining non-numeric rows (same defensive reasoning)
     df = df[pd.to_numeric(df["Close"], errors="coerce").notnull()]
     df = df.astype(float)
+    df = df.sort_index()
     return df
 
 
