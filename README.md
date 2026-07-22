@@ -1,31 +1,91 @@
-# Stock Price Direction Predictor (with Honest Backtesting)
+# 📈 Stock Price Direction Predictor
 
-An ML project that predicts next-day stock price **direction** (up/down)
-using technical indicators, then backtests the resulting strategy
-against simple buy-and-hold — the right way, with a chronological
-train/test split so there's no lookahead bias.
+Hey! Welcome to my project — this is something I built to dig into a
+question that honestly kept bugging me: **can machine learning actually
+predict the stock market, or is that mostly hype?**
 
-**This is a portfolio/learning project, not a trading tool.** Read the
-"Interpreting your results" section below before you get excited about
-any number it spits out.
+Spoiler: the answer is nuanced, and figuring that out was way more
+interesting than just slapping a model on some data and calling it a
+day. This project trains an ML model to predict whether a stock will
+go **up or down** tomorrow, then rigorously backtests it against just...
+buying and holding. No cherry-picked results, no fake "I beat the
+market" claims — just an honest look at what the model actually learned
+(or didn't).
 
-## Project structure
+I also built a full interactive dashboard on top of it because reading
+numbers in a terminal is fine, but watching it run live is way cooler. 🖥️
+
+## 🚀 Try it live
+
+```bash
+streamlit run app.py
+```
+
+This spins up a dashboard where you can type in any ticker, tweak some
+settings, and watch the whole pipeline run in real time — data
+download, feature engineering, training, backtest, charts, all of it.
+I'm honestly pretty proud of how this turned out.
+
+## 🤔 Why I built this this way
+
+When I started reading about ML + trading, I noticed a LOT of tutorials
+online do this sketchy thing where they shuffle their training data
+randomly, which secretly lets the model "peek" into the future. Their
+backtests look amazing... and are completely useless in real life.
+
+So I made sure to avoid that:
+- **Chronological train/test split** — the model only ever trains on
+  older data and gets tested on data it's never seen, like it would in
+  the real world.
+- **Predicting direction, not price** — predicting the exact next-day
+  price is a trap; a lazy model that just guesses "same as today" scores
+  great on paper. Predicting up/down is the honest test of whether the
+  model knows *anything*.
+- **Transaction costs included** — because a strategy that only wins
+  before fees isn't actually a strategy.
+
+## 📊 What I actually found
+
+Running this on AAPL, my model landed around **51–59% directional
+accuracy** depending on exactly which time window I tested on (50% =
+literally a coin flip). That range itself was kind of a wake-up call —
+it means the result isn't super stable, which is *exactly* the kind of
+thing that should make you suspicious of any single backtest number
+you see online. If someone shows you one great backtest and stops
+there, ask what happens on a different date range. 👀
+
+Basically: the model found a tiny bit of signal in some setups, but
+nothing you'd bet real money on. Which, honestly, matches what
+efficient market theory would predict! I think that's a more
+interesting takeaway than pretending I built a money-printing machine.
+
+## 🛠️ Tech stack
+
+- `yfinance` — pulling real historical price data
+- `pandas` / `numpy` — data wrangling
+- `ta` — technical indicators (RSI, MACD, moving averages, etc.)
+- `scikit-learn` — Random Forest classifier
+- `matplotlib` / `plotly` — static + interactive charts
+- `streamlit` — the live dashboard
+
+## 📁 Project structure
 
 ```
 stock-predictor/
+├── app.py                # 🖥️ Interactive Streamlit dashboard
+├── main.py                # Runs the full pipeline end-to-end (CLI version)
+├── fetch_data.py           # Pulls price history
+├── features.py             # Technical indicators + labels
+├── model.py                # Random Forest classifier
+├── backtest.py             # Simulates strategy vs. buy & hold
+├── plot_results.py         # Static chart generation
 ├── requirements.txt
-├── fetch_data.py           # Downloads price history via yfinance
-├── features.py             # Technical indicators + target labels
-├── model.py                # RandomForest classifier (direction: up/down)
-├── backtest.py             # Simulates the strategy vs buy & hold
-├── plot_results.py         # Chart generation
-├── main.py                 # Runs the full pipeline end to end
-├── data/                   # Downloaded price CSVs land here
-├── models/                 # Trained model + scaler saved here
-└── outputs/                # Backtest + feature importance charts
+├── data/                   # Downloaded price CSVs
+├── models/                 # Saved trained models
+└── outputs/                # Generated charts
 ```
 
-## Setup
+## ⚙️ Setup
 
 ```bash
 python3 -m venv venv
@@ -33,80 +93,44 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Run it
-
+Then either run the CLI version:
 ```bash
 python main.py AAPL
 ```
 
-Optional flags:
+...or fire up the dashboard:
 ```bash
-python main.py TSLA --years 8 --test-frac 0.2 --threshold 0.55
+streamlit run app.py
 ```
 
-- `--years` — how much history to pull (default 5)
-- `--test-frac` — fraction of the most recent data held out as the
-  out-of-sample test set (default 0.2 = last 20%)
-- `--threshold` — probability above which the strategy "buys" for the
-  day (default 0.5; raising it makes the strategy more selective)
+## 🧠 How to read your results
 
-This will:
-1. Download the ticker's daily price history
-2. Build ~12 technical-indicator features (moving averages, RSI, MACD, volatility, lagged returns)
-3. Train a Random Forest on the **older** portion of the data
-4. Test on the **newer**, unseen portion only
-5. Print a comparison table (strategy vs buy-and-hold)
-6. Save two charts to `outputs/`: cumulative returns and feature importance
+If you run this on your own ticker, here's the honest cheat sheet:
 
-## Interpreting your results (read this)
+- **~50% accuracy** → totally normal! The model didn't find an edge.
+  This is expected and doesn't mean you did anything wrong.
+- **50–55%** → maybe a tiny statistical whisper of something, but
+  easily just noise. Don't trust it on one ticker/window alone.
+- **55%+** → cool, but be skeptical before celebrating — this is
+  usually a sign of subtle data leakage somewhere, not a genuine edge.
+  I'd double check the feature engineering before believing it.
 
-The most important number in the output is **directional accuracy**.
+## 🙋 Disclaimer
 
-- **~50%** = the model is no better than a coin flip. This is the
-  most common and most honest result for short-term stock direction —
-  it means the model didn't find a real edge, which is expected
-  because daily price moves are dominated by noise.
-- **50–55%** = a small statistical edge might exist, but it's easily
-  within the range of what you'd see from randomness or from the
-  specific historical window chosen. Don't trust it without testing
-  across many tickers and time periods.
-- **55%+** = worth a second look, but be very suspicious — this is
-  often a sign of subtle data leakage (e.g., a feature that
-  accidentally "sees" future information) rather than a genuine edge.
-  Double-check the feature engineering before believing it.
+I'm a student building this to learn, not a financial advisor, and
+this is NOT trading advice. Please don't put real money behind this
+lol. If you want to actually learn from it, the real value is in
+poking at *why* it works or doesn't — that's where I learned the most.
 
-Also watch **max drawdown** — a strategy with a great total return but
-a brutal drawdown isn't necessarily better than buy-and-hold; it just
-took a rockier path to get there.
+## 💡 Ideas for extending this
 
-## Why this is built the way it is
+Stuff I want to try next if I keep working on this:
+- Testing across way more tickers to see if accuracy is ticker-dependent
+- Adding sentiment analysis from news headlines
+- Walk-forward validation instead of one single train/test split
+- Maybe trying an LSTM just to see if it actually beats the Random Forest
+  (my hunch is it won't, for this kind of tabular data, but that'd be a
+  cool thing to actually test and write up)
 
-A few choices that make this an honest backtest instead of a
-misleading one, since a lot of tutorials online get these wrong:
-
-- **Chronological split, not random.** Shuffling time-series data lets
-  the model "peek" at the future during training. This project always
-  trains on the older chunk and tests on the newer chunk only.
-- **Predicting direction, not exact price.** A model that predicts
-  "tomorrow's price ≈ today's price" scores deceptively well on raw
-  price prediction because prices don't move much day-to-day, but it's
-  useless for trading. Predicting direction is the honest version of
-  "does this model know anything."
-- **Transaction costs included.** Even a small per-trade cost
-  (0.05% by default) can turn an apparently profitable strategy
-  unprofitable once you account for realistic trading frictions.
-- **Feature importance reported.** Lets you sanity-check *why* the
-  model predicts what it does, rather than treating it as a black box.
-
-## Extending this project
-
-Ideas if you want to go further:
-- Try different tickers/sectors and compare directional accuracy —
-  does it vary by volatility or sector?
-- Add sentiment features (news headlines, social media) as extra columns.
-- Swap the Random Forest for an LSTM/Transformer and see if it actually
-  helps (often it doesn't, for this kind of tabular technical data —
-  which is itself an interesting finding to write up).
-- Add walk-forward validation (retrain periodically through the test
-  set) instead of a single train/test split, which is closer to how
-  you'd actually deploy something like this.
+Thanks for checking this out! Feel free to fork it, break it, improve
+it, or just poke around. 🚀
