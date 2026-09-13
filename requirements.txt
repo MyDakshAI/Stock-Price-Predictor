@@ -1,7 +1,15 @@
-yfinance
-pandas
-numpy
-scikit-learn
-matplotlib
-ta
-joblib
+# Runtime dependencies.
+# Version ranges rather than exact pins: tight enough to keep the API
+# stable, loose enough that a clean deploy (Streamlit Community Cloud,
+# a fresh venv, CI) resolves without wheel-availability headaches.
+
+yfinance>=0.2.40
+pandas>=2.0,<4.0
+numpy>=1.26,<3.0
+scikit-learn>=1.3,<2.0
+scipy>=1.11,<2.0
+ta>=0.11.0,<0.12.0
+joblib>=1.3,<2.0
+matplotlib>=3.7,<4.0
+plotly>=5.18,<8.0
+streamlit>=1.49,<2.0

@@ -1,136 +1,144 @@
-# 📈 Stock Price Direction Predictor
+# Does the model know anything?
 
-Hey! Welcome to my project, this is something I built to dig into a
-question that honestly kept bugging me: **can machine learning actually
-predict the stock market, or is that mostly hype?**
+**Can machine learning predict which way a stock moves tomorrow? I built the honest version of that experiment to find out.**
 
-Spoiler: the answer is nuanced, and figuring that out was way more
-interesting than just slapping a model on some data and calling it a
-day. This project trains an ML model to predict whether a stock will
-go **up or down** tomorrow, then rigorously backtests it against just...
-buying and holding. No cherry-picked results, no fake "I beat the
-market" claims, just an honest look at what the model actually learned
-(or didn't).
+[![Live demo](https://img.shields.io/badge/Live_demo-Open_the_dashboard-E8A33D?style=for-the-badge)](https://REPLACE-WITH-YOUR-STREAMLIT-URL.streamlit.app)
+[![tests](https://github.com/MyDakshAI/Stock-Price-Predictor/actions/workflows/tests.yml/badge.svg)](https://github.com/MyDakshAI/Stock-Price-Predictor/actions/workflows/tests.yml)
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-Random_Forest-F7931E?logo=scikitlearn&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?logo=streamlit&logoColor=white)
 
-I also built a full interactive dashboard on top of it because reading
-numbers in a terminal is fine, but watching it run live is way cooler. 🖥️
+> Type a ticker, get a rigorous out-of-sample backtest with a verdict that tells you the truth, including when the truth is "this found nothing."
 
-## 🚀 Try it live
+Built by [Daksh Goswami](https://www.linkedin.com/in/daksh-goswami-3077aa280).
 
-```bash
-streamlit run app.py
-```
+<!-- Add a screenshot here: run the app, take a screenshot of the dashboard, save it as docs/dashboard.png -->
+<!-- ![Dashboard screenshot](docs/dashboard.png) -->
 
-This spins up a dashboard where you can type in any ticker, tweak some
-settings, and watch the whole pipeline run in real time: data
-download, feature engineering, training, backtest, charts, all of it.
-I'm honestly pretty proud of how this turned out.
+---
 
-## 🤔 Why I built this this way
+## New to this? Start here
 
-When I started reading about ML + trading, I noticed a LOT of tutorials
-online do this sketchy thing where they shuffle their training data
-randomly, which secretly lets the model "peek" into the future. Their
-backtests look amazing... and are completely useless in real life.
+**What the project does, in plain English.** Every trading day, a stock closes either higher or lower than the day before. This trains a computer model to guess which one happens tomorrow, using only patterns in past prices and trading volume, and then measures how often that guess was right across a stretch of days the model never saw while learning.
 
-So I made sure to avoid that:
-- **Chronological train/test split**: the model only ever trains on
-  older data and gets tested on data it's never seen, like it would in
-  the real world.
-- **Predicting direction, not price**: predicting the exact next-day
-  price is a trap; a lazy model that just guesses "same as today" scores
-  great on paper. Predicting up/down is the honest test of whether the
-  model knows *anything*.
-- **Transaction costs included**: because a strategy that only wins
-  before fees isn't actually a strategy.
+**Why "beating 50%" is a trap.** A coin flip gets 50%, so that sounds like the target. It isn't. Stocks drift upward over time, so a rule as dumb as "always guess up, every day" already scores around 53% on most stocks while knowing nothing at all. That dumb rule is the real bar. A model scoring 52% has not found a signal, it has found a worse version of guessing, and a project that celebrates 52% as "beating the market" is fooling itself.
 
-## 📊 What I actually found
+**Why a negative result is the point.** Short-term price movement is mostly noise. If a straightforward model could reliably call tomorrow's direction, firms with supercomputers and PhD teams would have traded that opportunity away long before it reached a laptop. So the interesting engineering question is not "can I get a big number", it is "can I build something rigorous enough that I would believe its answer either way". That is what this is.
 
-Running this on AAPL, my model landed around **51–59% directional
-accuracy** depending on exactly which time window I tested on (50% =
-literally a coin flip). That range itself was kind of a wake-up call:
-it means the result isn't super stable, which is *exactly* the kind of
-thing that should make you suspicious of any single backtest number
-you see online. If someone shows you one great backtest and stops
-there, ask what happens on a different date range. 👀
+**The vocabulary**, if you want to read the dashboard:
 
-Basically: the model found a tiny bit of signal in some setups, but
-nothing you'd bet real money on. Which, honestly, matches what
-efficient market theory would predict! I think that's a more
-interesting takeaway than pretending I built a money-printing machine.
+| Term | What it means |
+|---|---|
+| Directional accuracy | How often the model correctly guessed tomorrow's up or down |
+| Naive baseline | The score from always guessing "up", the bar that actually matters |
+| p-value | Chance of seeing an edge this big by luck. Below 0.05 is the usual "probably real" bar |
+| ROC-AUC | How well it separates up-days from down-days. 0.50 is no signal, 1.00 is perfect |
+| Buy and hold | What you'd have made just buying and doing nothing, the comparison that counts |
+| Sharpe ratio | Return adjusted for how bumpy the ride was, higher is better |
+| Max drawdown | The worst peak-to-trough fall along the way, closer to zero is better |
+| Walk-forward validation | Testing across many different stretches of history instead of just one, so you see whether a result holds up or was luck |
+| Data leakage | The classic bug where a model accidentally sees information from the future, making a useless model look brilliant |
 
-## 🛠️ Tech stack
+---
 
-- `yfinance`: pulling real historical price data
-- `pandas` / `numpy`: data wrangling
-- `ta`: technical indicators (RSI, MACD, moving averages, etc.)
-- `scikit-learn`: Random Forest classifier
-- `matplotlib` / `plotly`: static + interactive charts
-- `streamlit`: the live dashboard
+## The short version
 
-## 📁 Project structure
+Most "AI predicts the stock market" projects quietly cheat, then report spectacular results. This one is built to catch itself cheating, and it reports what actually happened.
 
-```
-stock-predictor/
-├── app.py                # 🖥️ Interactive Streamlit dashboard
-├── main.py                # Runs the full pipeline end-to-end (CLI version)
-├── fetch_data.py           # Pulls price history
-├── features.py             # Technical indicators + labels
-├── model.py                # Random Forest classifier
-├── backtest.py             # Simulates strategy vs. buy & hold
-├── plot_results.py         # Static chart generation
-├── requirements.txt
-├── data/                   # Downloaded price CSVs
-├── models/                 # Saved trained models
-└── outputs/                # Generated charts
-```
+<!-- TODO: run `python main.py AAPL --market SPY --walk-forward` on a few tickers and
+     paste your real measured range below, then delete this comment. -->
 
-## ⚙️ Setup
+Running it across many tickers and many time windows, directional accuracy lands around **[FILL IN YOUR MEASURED RANGE]**, compared against the naive "always guess up" baseline rather than a 50% coin flip. Daily price moves are dominated by noise, and a result at or near that baseline is what efficient market theory predicts. The value of this project is the rigor that makes whatever conclusion you reach trustworthy, not a number that looks good on a slide.
+
+## What it does
+
+| | |
+|---|---|
+| **Predicts direction, not price** | Predicting tomorrow's exact price is a trap: a lazy model that guesses "same as today" scores beautifully and knows nothing. Up or down is the honest test. |
+| **Tests on data it never saw** | Strictly chronological splits. The model trains only on the past and is judged only on its future. |
+| **Compares against two baselines** | Buy-and-hold, plus the naive "always predict up" rule. Stocks rise on ~53% of days, so beating 50% proves nothing. This is the bar most projects skip. |
+| **Walk-forward validation** | Retrains across many rolling time windows and reports the full distribution of accuracy, not one lucky split. |
+| **Reports statistical significance** | A binomial test against the naive baseline, so you can tell a real edge from a small sample. |
+| **Checks its own confidence** | ROC-AUC, Brier score and a calibration curve: when the model says 60%, is it actually right 60% of the time? |
+| **Models transaction costs** | 0.05% per position change, because a strategy that only wins before fees is not a strategy. |
+
+## Why the methodology is the point
+
+When I started reading about ML and trading, I noticed most tutorials shuffle their training data randomly, which secretly lets the model peek at the future. Their backtests look incredible and are worthless in real life. Every design decision here pushes the other way:
+
+- **No shuffling, ever.** Chronological splits in both the single backtest and every walk-forward fold.
+- **The scaler is fit on training data only**, so test-set statistics never leak backwards. There is a unit test asserting this.
+- **A dedicated look-ahead test.** `tests/test_features.py` truncates the price history, rebuilds the features, and asserts that no earlier feature value changed. If any indicator reaches forward in time, CI fails.
+- **Suspicion built into the UI.** If accuracy comes back unusually high, the dashboard tells you to suspect data leakage rather than congratulating you.
+
+That last one matters more than it sounds. A model that looks too good is nearly always broken, and a tool that says so is more useful than one that does not.
+
+## Try it
+
+**[Open the live dashboard](https://REPLACE-WITH-YOUR-STREAMLIT-URL.streamlit.app)**, no install required. Or run it locally:
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+git clone https://github.com/MyDakshAI/Stock-Price-Predictor.git
+cd Stock-Price-Predictor
 pip install -r requirements.txt
-```
-
-Then either run the CLI version:
-```bash
-python main.py AAPL
-```
-
-...or fire up the dashboard:
-```bash
 streamlit run app.py
 ```
 
-## 🧠 How to read your results
+The dashboard has three modes, all driven by the ticker box:
 
-If you run this on your own ticker, here's the honest cheat sheet:
+```
+AAPL                    single out-of-sample backtest
+AAPL + walk-forward     accuracy distribution across rolling time windows
+AAPL, MSFT, TSLA, NVDA  side-by-side comparison across tickers
+```
 
-- **~50% accuracy** → totally normal! The model didn't find an edge.
-  This is expected and doesn't mean you did anything wrong.
-- **50–55%** → maybe a tiny statistical whisper of something, but
-  easily just noise. Don't trust it on one ticker/window alone.
-- **55%+** → cool, but be skeptical before celebrating: this is
-  usually a sign of subtle data leakage somewhere, not a genuine edge.
-  I'd double check the feature engineering before believing it.
+That last mode is the real test. An approach that finds genuine signal should work on more than one stock. If it beats the baseline on some tickers and not others with no pattern, that is what noise looks like.
 
-## 🙋 Disclaimer
+### Command line
 
-I'm a student building this to learn, not a financial advisor, and
-this is NOT trading advice. Please don't put real money behind this
-lol. If you want to actually learn from it, the real value is in
-poking at *why* it works or doesn't, that's where I learned the most.
+```bash
+python main.py AAPL                                  # single backtest
+python main.py AAPL --market SPY --walk-forward      # the rigorous version
+python main.py TSLA --years 8 --threshold 0.55       # tune the strategy
+python main.py AAPL --tune                           # grid-search via TimeSeriesSplit CV
+```
 
-## 💡 Ideas for extending this
+## Tech stack
 
-Stuff I want to try next if I keep working on this:
-- Testing across way more tickers to see if accuracy is ticker-dependent
-- Adding sentiment analysis from news headlines
-- Walk-forward validation instead of one single train/test split
-- Maybe trying an LSTM just to see if it actually beats the Random Forest
-  (my hunch is it won't, for this kind of tabular data, but that'd be a
-  cool thing to actually test and write up)
+`scikit-learn` Random Forest classifier, `ta` for technical indicators (RSI, MACD, Bollinger Bands, ATR, stochastic oscillator, OBV), `yfinance` for market data, `scipy` for significance testing, `pandas` and `numpy` for the pipeline, `Streamlit` and `Plotly` for the dashboard, `pytest` and GitHub Actions for the test suite.
 
-Thanks for checking this out! Feel free to fork it, break it, improve
-it, or just poke around. 🚀
+## Project structure
+
+```
+├── app.py              Streamlit dashboard (3 modes, cached pipeline)
+├── main.py             CLI pipeline end to end
+├── fetch_data.py       Price data download with daily caching
+├── features.py         Technical indicators + market-relative features
+├── model.py            Random Forest, chronological split, optional CV tuning
+├── backtest.py         Strategy simulation, baselines, significance, calibration
+├── walk_forward.py     Rolling-window validation across time
+├── plot_results.py     Static chart generation
+└── tests/              34 tests including a look-ahead leakage check
+```
+
+## How to read your own results
+
+- **At or below the naive baseline** is the normal outcome. It means no edge was found, and that is a real finding, not a failure.
+- **Slightly above, p > 0.05** means the gap is within what randomness produces. Run walk-forward before believing it.
+- **Well above the baseline** should make you suspicious first and excited second. Check the features for leakage.
+
+## Disclaimer
+
+I built this to learn, and it is not financial advice. Please do not put real money behind it. The interesting part is not whether it makes money, it is understanding exactly why it does not.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
+
+## Contact
+
+Built by Daksh Goswami. Find me on [LinkedIn](https://www.linkedin.com/in/daksh-goswami-3077aa280) or open an issue on this repo.
+
+## What I would do next
+
+Sentiment features from news headlines, an LSTM comparison to test whether sequence models beat a Random Forest on tabular market data (my hunch is no), and scaling the multi-ticker comparison to a few hundred stocks to measure how often an apparent edge is just the multiple-comparisons problem.

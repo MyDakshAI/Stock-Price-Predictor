@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Does the model know anything?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <p class="eyebrow">// directional signal lab</p>
+      <h1>Does the model know anything<span class="blink">_</span></h1>
+      <p class="lede">
+        A research dashboard for next-day stock direction. The model only trains on older data,
+        is judged against an “always guess up” baseline (not a coin flip), and pays a cost
+        whenever it changes position. This is not trading advice.
+      </p>
+    </header>
+
+    <form id="controls" class="console" autocomplete="off">
+      <label class="field grow">
+        <span>$ ticker (comma-separate to compare)</span>
+        <input id="ticker" type="text" value="AAPL" spellcheck="false" />
+      </label>
+      <label class="field">
+        <span>history <em id="years-label">5y</em></span>
+        <input id="years" type="range" min="2" max="10" value="5" />
+      </label>
+      <label class="field">
+        <span>buy threshold <em id="thresh-label">0.50</em></span>
+        <input id="threshold" type="range" min="0.45" max="0.65" step="0.01" value="0.50" />
+      </label>
+      <button type="submit" id="run-btn">Run analysis</button>
+      <div class="toggles">
+        <label class="check">
+          <input id="use-market" type="checkbox" checked />
+          Add SPY market features
+        </label>
+        <label class="check">
+          <input id="walk-forward" type="checkbox" />
+          Walk-forward validation
+        </label>
+      </div>
+    </form>
+
+    <p id="status" class="status" hidden></p>
+    <div id="results"></div>
+
+    <footer class="foot">
+      Chronological split, no shuffling · 0.05% cost per position change · Streamlit is still available via
+      <code>streamlit run app.py</code>
+    </footer>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+# Theme is set here as well as in app.py's CSS so the page renders in the
+# right colors on first paint, before the custom stylesheet loads. Without
+# this, a visitor arriving from a link sees a white flash first.
+
+[theme]
+base = "dark"
+primaryColor = "#E8A33D"
+backgroundColor = "#0B0E11"
+secondaryBackgroundColor = "#14181D"
+textColor = "#D6DBE1"
+font = "monospace"
+
+[browser]
+gatherUsageStats = false
+
+[server]
+headless = true
