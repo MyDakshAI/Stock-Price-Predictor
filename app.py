@@ -252,7 +252,7 @@ st.markdown('<div class="term-title">Does the model know anything<span class="bl
 st.markdown(
     '<div class="term-sub">Trains a model to predict next-day price direction from technical '
     'indicators, then backtests it against buy-and-hold on data it never saw. '
-    'This is a research tool, not trading advice — read the verdict below every run.</div>',
+    'This is a research tool, not trading advice; read the verdict below every run.</div>',
     unsafe_allow_html=True,
 )
 
@@ -320,7 +320,7 @@ if "results" in st.session_state:
     strat_ret = summary["strategy_total_return"]
     bh_ret = summary["buy_hold_total_return"]
 
-    st.markdown(f'<div class="sec-head">// {tkr} — test period: {summary["test_days"]} trading days '
+    st.markdown(f'<div class="sec-head">// {tkr}, test period: {summary["test_days"]} trading days '
                 f'({test_df.index[0].date()} to {test_df.index[-1].date()})</div>', unsafe_allow_html=True)
 
     # --- Metric cards ---
@@ -362,7 +362,7 @@ if "results" in st.session_state:
         tag_class, tag_text = "tag-neutral", "expected result"
         verdict = (
             f"Directional accuracy of {acc*100:.1f}% is statistically close to a coin flip. "
-            f"This is the common, honest outcome for short-term price direction — daily moves "
+            f"This is the common, honest outcome for short-term price direction: daily moves "
             f"are dominated by noise, and this model doesn't appear to have found a real edge "
             f"on {tkr} over this window. Treat this as a learning exercise, not a signal."
         )
@@ -376,7 +376,7 @@ if "results" in st.session_state:
     else:
         tag_class, tag_text = "tag-caution", "verify before trusting"
         verdict = (
-            f"Accuracy of {acc*100:.1f}% is high enough to be worth a second look — but be "
+            f"Accuracy of {acc*100:.1f}% is high enough to be worth a second look, but be "
             f"suspicious. Results this strong for short-term direction more often indicate subtle "
             f"data leakage (a feature that inadvertently 'sees' the future) than a genuine edge. "
             f"Double-check the feature engineering before believing it."
@@ -445,7 +445,7 @@ else:
     <div class="verdict-box" style="margin-top: 2rem;">
         <span class="verdict-tag tag-neutral">standing by</span><br/>
         Enter a ticker above and hit <b>Run analysis</b>. The model trains on the older 80% of
-        the price history and is tested only on the most recent 20% it has never seen —
+        the price history and is tested only on the most recent 20% it has never seen,
         the honest way to evaluate whether it actually learned anything.
     </div>
     """, unsafe_allow_html=True)
