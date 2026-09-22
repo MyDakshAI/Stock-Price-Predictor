@@ -2,7 +2,7 @@
 
 **Can machine learning predict which way a stock moves tomorrow? I built the honest version of that experiment to find out.**
 
-[![Live demo](https://img.shields.io/badge/Live_demo-Open_the_dashboard-E8A33D?style=for-the-badge)](https://REPLACE-WITH-YOUR-STREAMLIT-URL.streamlit.app)
+[![Live demo](https://img.shields.io/badge/Live_demo-Open_the_dashboard-E8A33D?style=for-the-badge)](https://stock-price-predictor-jcph6fk55cqxfc5gh4mhcz.streamlit.app/)
 [![tests](https://github.com/MyDakshAI/Stock-Price-Predictor/actions/workflows/tests.yml/badge.svg)](https://github.com/MyDakshAI/Stock-Price-Predictor/actions/workflows/tests.yml)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-Random_Forest-F7931E?logo=scikitlearn&logoColor=white)
@@ -45,10 +45,7 @@ Built by [Daksh Goswami](https://www.linkedin.com/in/daksh-goswami-3077aa280).
 
 Most "AI predicts the stock market" projects quietly cheat, then report spectacular results. This one is built to catch itself cheating, and it reports what actually happened.
 
-<!-- TODO: run `python main.py AAPL --market SPY --walk-forward` on a few tickers and
-     paste your real measured range below, then delete this comment. -->
-
-Running it across many tickers and many time windows, directional accuracy lands around **[FILL IN YOUR MEASURED RANGE]**, compared against the naive "always guess up" baseline rather than a 50% coin flip. Daily price moves are dominated by noise, and a result at or near that baseline is what efficient market theory predicts. The value of this project is the rigor that makes whatever conclusion you reach trustworthy, not a number that looks good on a slide.
+Running it across many tickers and many time windows, directional accuracy lands in the **51%–59%** range, hovering right around the naive "always guess up" baseline (~53%) rather than beating it, depending on the ticker and test window. Daily price moves are dominated by noise, and a result at or near that baseline is what efficient market theory predicts. The value of this project is the rigor that makes whatever conclusion you reach trustworthy, not a number that looks good on a slide.
 
 ## What it does
 
@@ -75,7 +72,7 @@ That last one matters more than it sounds. A model that looks too good is nearly
 
 ## Try it
 
-**[Open the live dashboard](https://REPLACE-WITH-YOUR-STREAMLIT-URL.streamlit.app)**, no install required. Or run it locally:
+**[Open the live dashboard](https://stock-price-predictor-jcph6fk55cqxfc5gh4mhcz.streamlit.app/)**, no install required. Or run it locally:
 
 ```bash
 git clone https://github.com/MyDakshAI/Stock-Price-Predictor.git

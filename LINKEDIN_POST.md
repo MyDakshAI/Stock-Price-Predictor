@@ -1,8 +1,8 @@
 # LinkedIn post drafts
 
-Three versions below. Pick one, fill in the bracketed numbers from your own
-run of `python main.py AAPL --market SPY --walk-forward`, and delete the rest
-of this file before committing if you would rather not have it in the repo.
+Three versions below. Pick one. Live demo URL still needs to be filled in once
+the Streamlit app is deployed, delete the rest of this file before committing
+if you would rather not have it in the repo.
 
 Attach a screenshot of the dashboard and put the live demo link as the first
 link in the post.
@@ -29,7 +29,7 @@ So I made it adversarial toward its own results:
 
 → When accuracy comes back unusually high, the dashboard tells you to suspect data leakage rather than congratulating you.
 
-The result across tickers and time windows: [YOUR RANGE]% directional accuracy, [at or below / just above] the naive baseline. Which is roughly what efficient market theory predicts, and exactly what you would expect if daily price moves are dominated by noise.
+The result across tickers and time windows: 51–59% directional accuracy, hovering right around the naive baseline (~53%) rather than beating it. Which is roughly what efficient market theory predicts, and exactly what you would expect if daily price moves are dominated by noise.
 
 I could have cherry-picked one window and posted a chart that looked like alpha. Building the thing that tells you when you have found nothing felt like the more useful engineering lesson.
 
@@ -48,7 +48,7 @@ Python, scikit-learn, Streamlit, pytest, GitHub Actions.
 
 I built it properly to find out. Chronological splits only, tested against the naive "always guess up" baseline instead of a 50% coin flip, walk-forward validated across rolling windows, with a unit test that fails CI if any feature accidentally sees the future.
 
-Result: [YOUR RANGE]% directional accuracy, [at or below / just above] the baseline.
+Result: 51–59% directional accuracy, hovering right around the baseline rather than beating it.
 
 It found essentially nothing, which is the correct answer. The engineering value was building something rigorous enough that I could trust a negative result instead of fooling myself with a pretty backtest.
 
@@ -69,7 +69,7 @@ Each of those produces a backtest that looks like alpha and is worth nothing.
 
 So I built the version that catches itself: chronological splits everywhere, a naive-baseline comparison, a binomial significance test, calibration curves, walk-forward validation across rolling windows, and a test that fails CI if any feature reaches forward in time.
 
-Honest result: [YOUR RANGE]% directional accuracy, [at or below / just above] the baseline. No edge, which is what the efficient market hypothesis predicts.
+Honest result: 51–59% directional accuracy, hovering right around the baseline rather than beating it. No edge, which is what the efficient market hypothesis predicts.
 
 Negative results are still results, if your methodology is good enough to trust them.
 
